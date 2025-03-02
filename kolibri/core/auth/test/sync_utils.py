@@ -17,6 +17,7 @@ from requests.exceptions import RequestException
 
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from security import safe_command
 
 # custom Morango instance info used in tests
 CUSTOM_INSTANCE_INFO = {"kolibri": "0.14.7"}
@@ -71,8 +72,7 @@ class KolibriServer(object):
             self.manage("devicesettings", "set", "--disable-automatic-download")
 
     def manage(self, *args):
-        subprocess.call(
-            ["kolibri", "manage"] + list(args),
+        safe_command.run(subprocess.call, ["kolibri", "manage"] + list(args),
             env=self.env,
         )
 
@@ -112,8 +112,7 @@ class KolibriServer(object):
         )
 
     def pipe_shell(self, text):
-        subprocess.call(
-            "echo '{}' | kolibri shell".format(text), env=self.env, shell=True
+        safe_command.run(subprocess.call, "echo '{}' | kolibri shell".format(text), env=self.env, shell=True
         )
 
     def _wait_for_server_start(self, timeout=20):

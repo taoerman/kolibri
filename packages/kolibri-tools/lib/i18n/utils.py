@@ -7,6 +7,7 @@ import logging
 import os
 import subprocess
 import sys
+from security import safe_command
 
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 logging.StreamHandler(sys.stdout)
@@ -141,4 +142,4 @@ def read_config_file():
 
 
 def install_requirement(requirement_name):
-    subprocess.run([sys.executable, "-m", "pip", "install", requirement_name])
+    safe_command.run(subprocess.run, [sys.executable, "-m", "pip", "install", requirement_name])

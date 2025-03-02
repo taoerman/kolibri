@@ -13,6 +13,7 @@ import os
 import re
 import subprocess
 import sys
+from security import safe_command
 
 
 # py2+py3 compatible imports via http://python-future.org/compatible_idioms.html
@@ -104,7 +105,7 @@ def get_kolibri_version(kolibri_cmd):
     cmd = kolibri_cmd[:] + ["--version"]
     logging.info("Calling cmd {} to get the Kolibri version information.".format(cmd))
     cmd_str = " ".join(cmd)
-    proc = subprocess.Popen(cmd_str, stdout=subprocess.PIPE, shell=True)
+    proc = safe_command.run(subprocess.Popen, cmd_str, stdout=subprocess.PIPE, shell=True)
     line = proc.stdout.readline().decode("utf-8")
     m = MAJOR_MINOR_PAT.search(line)
     if m:
@@ -158,7 +159,7 @@ def provisiondevice(kolibri_cmd):
     cmd += ["--noinput"]
     logging.debug("Provision command = {}".format(" ".join(cmd)))
     cmd_str = " ".join(cmd)
-    subprocess.call(cmd_str, shell=True)
+    safe_command.run(subprocess.call, cmd_str, shell=True)
 
 
 # OTHER SETUP TASKS
@@ -179,9 +180,9 @@ def import_channels(kolibri_cmd):
     importcontent_cmd = kolibri_cmd[:] + ["manage", "importcontent", "network"]
     for channel_id in channel_ids_to_import:
         importchannel_cmd_str = " ".join(importchannel_cmd + [channel_id])
-        subprocess.call(importchannel_cmd_str, shell=True)
+        safe_command.run(subprocess.call, importchannel_cmd_str, shell=True)
         importcontent_cmd_str = " ".join(importcontent_cmd + [channel_id])
-        subprocess.call(importcontent_cmd_str, shell=True)
+        safe_command.run(subprocess.call, importcontent_cmd_str, shell=True)
 
 
 # PEX DEPLOY
@@ -240,7 +241,7 @@ def set_default_language(kolibri_cmd):
     # Depends on vars: KOLIBRI_HOME and DJANGO_SETTINGS_MODULE
     cmd = kolibri_cmd[:] + ["language", "setdefault", envs["KOLIBRI_LANG"]]
     cmd_str = " ".join(cmd)
-    subprocess.call(cmd_str, shell=True)
+    safe_command.run(subprocess.call, cmd_str, shell=True)
 
 
 def run_kolibri(cmd):
@@ -248,7 +249,7 @@ def run_kolibri(cmd):
     os.chdir("/kolibri")  # in case we're running from source and calling devserver
     cmd_str = " ".join(cmd)
     # Depends on vars: KOLIBRI_HOME, KOLIBRI_HTTP_PORT, and DJANGO_SETTINGS_MODULE
-    subprocess.call(cmd_str, shell=True)
+    safe_command.run(subprocess.call, cmd_str, shell=True)
     # This results in pstree: init --> /docker/entrypoint.py --> sh --> kolibri
     # the extra sh-intemediary is because yarn needs to read ENV variables
     #

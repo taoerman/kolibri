@@ -91,6 +91,7 @@ import subprocess
 import sys
 
 from .lru_cache import lru_cache
+from security import safe_command
 
 logger = logging.getLogger(__name__)
 
@@ -161,13 +162,7 @@ def get_git_describe(version):
     valid_pattern = re.compile(r"^v[0-9-.]+(-(alpha|beta|rc)[0-9]+)?(-\d+-\w+)?$")
     repo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     try:
-        p = subprocess.Popen(
-            # Match based on the current minor version, as all tags in the same
-            # minor version series should share a commit history, and so the nearest
-            # commit for this minor version should be in accordance to the current version.
-            # This prevents cascade merges from patch releases in earlier versions necessitating
-            # a new tag in the higher minor version branch.
-            "git describe --tags --abbrev=8 --match 'v[[:digit:]]*.[[:digit:]]*.[[:digit:]]*'".format(
+        p = safe_command.run(subprocess.Popen, "git describe --tags --abbrev=8 --match 'v[[:digit:]]*.[[:digit:]]*.[[:digit:]]*'".format(
                 *version
             ),
             stdout=subprocess.PIPE,

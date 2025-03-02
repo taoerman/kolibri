@@ -7,6 +7,7 @@ import sys
 
 from .constants import drivetypes
 from kolibri.utils.android import on_android
+from security import safe_command
 
 logger = logging.getLogger(__name__)
 
@@ -239,8 +240,7 @@ def _try_to_get_drive_info_from_diskutil(device):
         return {}
 
     # run the command and read the results
-    diskutilp = subprocess.Popen(
-        "diskutil info {}".format(device), shell=True, stdout=subprocess.PIPE
+    diskutilp = safe_command.run(subprocess.Popen, "diskutil info {}".format(device), shell=True, stdout=subprocess.PIPE
     )
     diskutil_output, err = diskutilp.communicate()
 
