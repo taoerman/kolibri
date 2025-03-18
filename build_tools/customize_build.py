@@ -9,8 +9,7 @@ import logging
 import os
 import sys
 import tempfile
-
-import requests
+from security import safe_requests
 
 sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -30,7 +29,7 @@ def load_plugins_from_file(file_path):
             )
             _, path = tempfile.mkstemp(suffix=".txt", text=True)
             with open(path, "w") as f:
-                r = requests.get(file_path)
+                r = safe_requests.get(file_path)
                 f.write(r.content)
             file_path = path
         with open(file_path, "r") as f:

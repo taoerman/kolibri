@@ -7,8 +7,7 @@ For more detail see the documentation in __init__.py
 import logging
 import os
 import tempfile
-
-import requests
+from security import safe_requests
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +24,7 @@ def add_requirements_to_base():
             )
             _, path = tempfile.mkstemp(suffix=".txt", text=True)
             with open(path, "w") as f:
-                r = requests.get(file_path)
+                r = safe_requests.get(file_path)
                 f.write(r.content)
             file_path = path
         try:

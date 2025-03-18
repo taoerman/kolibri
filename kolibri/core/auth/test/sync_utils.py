@@ -6,8 +6,6 @@ import subprocess
 import tempfile
 import time
 import uuid
-
-import requests
 from django.conf import settings
 from django.db import connection
 from django.db import connections
@@ -17,6 +15,7 @@ from requests.exceptions import RequestException
 
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from security import safe_requests
 
 # custom Morango instance info used in tests
 CUSTOM_INSTANCE_INFO = {"kolibri": "0.14.7"}
@@ -119,7 +118,7 @@ class KolibriServer(object):
     def _wait_for_server_start(self, timeout=20):
         for i in range(timeout * 2):
             try:
-                resp = requests.get(self.baseurl + "api/public/info/", timeout=3)
+                resp = safe_requests.get(self.baseurl + "api/public/info/", timeout=3)
                 if resp.status_code > 0:
                     return
             except RequestException:

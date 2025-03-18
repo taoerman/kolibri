@@ -34,6 +34,7 @@ from kolibri.utils import conf
 from kolibri.utils.android import on_android
 from kolibri.utils.logger import cleanup_queue_logging
 from kolibri.utils.logger import setup_queue_logging
+from security import safe_requests
 
 try:
     FileNotFoundError
@@ -989,7 +990,7 @@ def get_status():  # noqa: max-complexity=16
             # TODO: Using 127.0.0.1 is a hardcode default from Kolibri, it could
             # be configurable
             # TODO: HTTP might not be the protocol if server has SSL
-            response = requests.get(check_url, timeout=3)
+            response = safe_requests.get(check_url, timeout=3)
         except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
             raise NotRunning(STATUS_NOT_RESPONDING)
         except (requests.exceptions.RequestException):
@@ -1007,7 +1008,7 @@ def get_status():  # noqa: max-complexity=16
 
     else:
         try:
-            requests.get(check_url, timeout=3)
+            safe_requests.get(check_url, timeout=3)
         except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
             raise NotRunning(STATUS_NOT_RESPONDING)
         except (requests.exceptions.RequestException):

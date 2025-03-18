@@ -6,11 +6,10 @@ import sys
 from functools import reduce
 from io import BytesIO
 from operator import and_
-
-import requests
 import utils
 from fontTools.ttLib import TTFont
 from fontTools.varLib import instancer
+from security import safe_requests
 
 # Rely on the fact that this module is only
 # imported from the fonts.py module, which ensures
@@ -90,7 +89,7 @@ def _request(path):
     url = "https://api.github.com/repos/notofonts/notofonts.github.io/" + path
     token = os.environ.get("GITHUB_TOKEN")
     headers = {"Authorization": "token {}".format(token)} if token else {}
-    r = requests.get(url, headers=headers)
+    r = safe_requests.get(url, headers=headers)
     if r.status_code == 403:
         logging.error("You've hit the Github API rate limit.")
         if not token:
@@ -303,13 +302,13 @@ def fetch_fonts():
             output_path = get_path(font_name, weight)
             logging.info("Writing {}".format(output_path))
             if weight in font_info:
-                r = requests.get(font_info[weight])
+                r = safe_requests.get(font_info[weight])
                 r.raise_for_status()
                 with open(output_path, "wb") as f:
                     f.write(r.content)
             else:
                 # If not found, use the variable font
-                r = requests.get(font_info["Variable"])
+                r = safe_requests.get(font_info["Variable"])
                 r.raise_for_status()
                 font_stream = BytesIO(r.content)
                 font = TTFont(font_stream)
