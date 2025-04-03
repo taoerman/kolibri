@@ -71,7 +71,7 @@ class Command(BaseCommand):
             command_pid = None
             try:
                 with open(PROFILE_LOCK, "r") as f:
-                    command_pid = int(f.readline())
+                    command_pid = int(f.readline(5_000_000))
             except (IOError, TypeError, ValueError):
                 remove_lock()
             if command_pid:

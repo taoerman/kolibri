@@ -173,8 +173,8 @@ class MetricsMiddleware(MiddlewareMixin):
             if os.path.exists(PROFILE_LOCK):
                 try:
                     with open(PROFILE_LOCK, "r") as f:
-                        MetricsMiddleware.command_pid = int(f.readline())
-                        file_timestamp = f.readline()
+                        MetricsMiddleware.command_pid = int(f.readline(5_000_000))
+                        file_timestamp = f.readline(5_000_000)
                         if SUPPORTED_OS:
                             MetricsMiddleware.disabled = False
                             self.requests_profiling_file = os.path.join(

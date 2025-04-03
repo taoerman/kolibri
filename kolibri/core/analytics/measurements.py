@@ -163,8 +163,8 @@ def get_kolibri_process_info():
     kolibri_port = None
     try:
         with open(PID_FILE, "r") as f:
-            kolibri_pid = int(f.readline())
-            kolibri_port = int(f.readline())
+            kolibri_pid = int(f.readline(5_000_000))
+            kolibri_port = int(f.readline(5_000_000))
     except IOError:
         pass  # Kolibri PID file does not exist
     except ValueError:

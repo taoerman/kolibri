@@ -35,7 +35,7 @@ class gen_windows_batch_files(install_scripts):
         for output_path in self.get_outputs():
             # look for #! at the top
             with open(output_path, "rt") as f:
-                first_line = f.readline()
+                first_line = f.readline(5_000_000)
             # skip non-executbale python files
             if not (first_line.startswith("#!") and "python" in first_line.lower()):
                 continue
