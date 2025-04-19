@@ -2,7 +2,6 @@ import logging
 from datetime import timedelta
 from itertools import groupby
 from math import ceil
-from random import randint
 
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
@@ -59,6 +58,7 @@ from kolibri.core.notifications.api import quiz_completed_notification
 from kolibri.core.notifications.api import quiz_started_notification
 from kolibri.core.notifications.tasks import wrap_to_save_queue
 from kolibri.utils.time_utils import local_now
+import secrets
 
 logger = logging.getLogger(__name__)
 
@@ -524,7 +524,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 # where d is the number of combinations of d digits, p is the probability
                 # So for 9 digits, d = 10^9
                 # p = 0.000001 for one in a million
-                mastery_level = randint(MIN_INTEGER, -1)
+                mastery_level = secrets.SystemRandom().randint(MIN_INTEGER, -1)
             else:
                 mastery_level = (
                     masterylog.mastery_level + 1 if masterylog is not None else 1

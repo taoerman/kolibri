@@ -1,6 +1,5 @@
 import datetime
 import logging
-import random
 
 from django.db.models import Max
 from django.db.models import Min
@@ -23,6 +22,7 @@ from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
+import secrets
 
 logger = logging.getLogger(__name__)
 
@@ -95,7 +95,7 @@ def get_or_create_classrooms(**options):
             verbosity,
         )
         for i in range(0, n_to_create):
-            class_name = "Class{i}{a}".format(i=i + 1, a=random.choice("ABCD"))
+            class_name = "Class{i}{a}".format(i=i + 1, a=secrets.choice("ABCD"))
             if device_name:
                 # Prepend the facility name to the class to easily identify the class during
                 # P2P sync tests. The facility name already has the device_name prepended.
@@ -144,8 +144,7 @@ def get_or_create_classroom_users(**options):
             name = " ".join(
                 [
                     base_data[key]
-                    for key in random.sample(
-                        user_data_name_fields, random.randint(1, 3)
+                    for key in secrets.SystemRandom().sample(user_data_name_fields, secrets.SystemRandom().randint(1, 3)
                     )
                     if base_data[key]
                 ]
@@ -156,7 +155,7 @@ def get_or_create_classroom_users(**options):
             # calculate birth year
             birth_year = str(current_year - int(base_data["Age"]))
             # randomly assign gender
-            gender = random.choice(demographics.choices)[0]
+            gender = secrets.choice(demographics.choices)[0]
             try:
                 user = FacilityUser.objects.create(
                     facility=facility,
@@ -202,17 +201,17 @@ def add_channel_activity_for_user(**options):  # noqa: max-complexity=16
     # Generate a content interaction history for this many content items
     for i in range(0, n_content_items):
         # Use this to randomly select a content node to generate the interaction for
-        index = random.randint(0, default_channel_content.count() - 1)
+        index = secrets.SystemRandom().randint(0, default_channel_content.count() - 1)
         random_node = default_channel_content[index]
 
         # We will generate between 1 and 5 content session logs for this content item
         session_logs = []
 
-        for j in range(0, random.randint(1, 5)):
+        for j in range(0, secrets.SystemRandom().randint(1, 5)):
             # How many minutes did they spend in this session? Up to 15
-            duration = random.random() * 15
+            duration = secrets.SystemRandom().random() * 15
             # Assume they spent some of this session time not doing anything - the lazy...
-            idle_time = random.random() * duration
+            idle_time = secrets.SystemRandom().random() * duration
             session_logs.append(
                 ContentSessionLog(
                     user=user,
@@ -222,7 +221,7 @@ def add_channel_activity_for_user(**options):  # noqa: max-complexity=16
                     end_timestamp=now - datetime.timedelta(i + j),
                     # How many seconds did they actually spend doing something?
                     time_spent=(duration - idle_time) * 60,
-                    progress=random.random(),
+                    progress=secrets.SystemRandom().random(),
                     kind=random_node.kind,
                 )
             )
@@ -325,7 +324,7 @@ def add_channel_activity_for_user(**options):  # noqa: max-complexity=16
                     n = 5
                 else:
                     # Otherwise, let them have answered between 1 and 5 questions per session
-                    n = random.randint(1, 5)
+                    n = secrets.SystemRandom().randint(1, 5)
                 # How long did they spend on these n questions?
                 timespan = session_log.end_timestamp - session_log.start_timestamp
                 # Index through each individual question
@@ -347,14 +346,14 @@ def add_channel_activity_for_user(**options):  # noqa: max-complexity=16
                     end_timestamp = session_log.end_timestamp - (timespan / n) * k
 
                     # If incorrect, must have made at least two attempts at the question
-                    question_attempts = 1 if correct else random.randint(2, 5)
+                    question_attempts = 1 if correct else secrets.SystemRandom().randint(2, 5)
 
                     question_interval = (
                         end_timestamp - start_timestamp
                     ) / question_attempts
 
                     # If they got it wrong, give 20/80 chance that they took a hint to do so
-                    hinted = random.choice((False, False, False, False, not correct))
+                    hinted = secrets.choice((False, False, False, False, not correct))
                     if hinted:
                         first_interaction = {"correct": False, "type": "hint"}
                     else:
@@ -390,7 +389,7 @@ def add_channel_activity_for_user(**options):  # noqa: max-complexity=16
 
                     AttemptLog.objects.create(
                         # Choose a random assessment item id from the exercise
-                        item=random.choice(assessment_item_ids),
+                        item=secrets.choice(assessment_item_ids),
                         # Just let each attempt be a fixed proportion of the total time spent on the exercise
                         start_timestamp=start_timestamp,
                         end_timestamp=end_timestamp,
@@ -424,7 +423,7 @@ def create_lessons_for_classroom(**options):
 
     coaches = facility.get_coaches()
     if coaches:
-        coach = random.choice(coaches)
+        coach = secrets.choice(coaches)
     else:
         members = facility.get_members()
         if not members:
@@ -432,19 +431,19 @@ def create_lessons_for_classroom(**options):
             coach.set_password("password")
             coach.save()
         else:
-            coach = random.choice(members)
+            coach = secrets.choice(members)
             facility.add_coach(coach)
 
     for count in range(num_lessons):
 
-        channel = random.choice(channels)
+        channel = secrets.choice(channels)
         channel_content = ContentNode.objects.filter(channel_id=channel.id)
         # don't add more than 10 resources per Lesson:
-        n_content_items = min(random.randint(0, channel_content.count() - 1), 10)
+        n_content_items = min(secrets.SystemRandom().randint(0, channel_content.count() - 1), 10)
         lesson_content = []
         for i in range(0, n_content_items):
             # Use this to randomly select a content node to generate the interaction for
-            random_node = random.choice(channel_content)
+            random_node = secrets.choice(channel_content)
             content = {
                 "contentnode_id": random_node.id,
                 "channel_id": channel.id,
@@ -453,7 +452,7 @@ def create_lessons_for_classroom(**options):
             lesson_content.append(content)
 
         lesson = Lesson.objects.create(
-            title="Lesson {}-{a}".format(count, a=random.choice("ABCDEF")),
+            title="Lesson {}-{a}".format(count, a=secrets.choice("ABCDEF")),
             resources=lesson_content,
             is_active=True,
             collection=classroom,
@@ -479,7 +478,7 @@ def create_exams_for_classrooms(**options):
 
     coaches = facility.get_coaches()
     if coaches:
-        coach = random.choice(coaches)
+        coach = secrets.choice(coaches)
     else:
         members = facility.get_members()
         if not members:
@@ -490,7 +489,7 @@ def create_exams_for_classrooms(**options):
                 coach.name = "{0} {1}".format(device_name, coach.name)
             coach.save()
         else:
-            coach = random.choice(members)
+            coach = secrets.choice(members)
             facility.add_coach(coach)
 
     for count in range(num_exams):
@@ -506,13 +505,13 @@ def create_exams_for_classrooms(**options):
         assessment_ids = []
         for i in range(0, n_content_items):
             # Use this to randomly select an exercise content node to generate the interaction for
-            random_node = random.choice(exercise_content)
+            random_node = secrets.choice(exercise_content)
             # grab this exercise node's assessment ids
             assessment_item_ids = (
                 random_node.assessmentmetadata.first().assessment_item_ids
             )
             # randomly select one of the questions in the exercise and store the ids for the exam attempt logs
-            assessment_ids.append(random.choice(assessment_item_ids))
+            assessment_ids.append(secrets.choice(assessment_item_ids))
             content = {
                 "exercise_id": random_node.id,
                 "question_id": assessment_ids[i],
@@ -523,7 +522,7 @@ def create_exams_for_classrooms(**options):
             content_ids.append(random_node.content_id)
 
         exam = Exam.objects.create(
-            title="Quiz {}-{a}".format(count, a=random.choice("ABCDEF")),
+            title="Quiz {}-{a}".format(count, a=secrets.choice("ABCDEF")),
             question_count=n_content_items,
             question_sources=exam_content,
             active=True,
@@ -536,7 +535,7 @@ def create_exams_for_classrooms(**options):
         )
         # everyone in the class has to take the exam
         for user in classroom.get_members():
-            random_seconds = random.randint(1, 500)
+            random_seconds = secrets.SystemRandom().randint(1, 500)
             seconds = timezone.timedelta(seconds=random_seconds)
             then = now - seconds
             # create mastery log per user
@@ -567,8 +566,8 @@ def create_exams_for_classrooms(**options):
             )
             # create 1 exam attempt log per question in exam
             for i in range(len(exam_content)):
-                correct = random.choice([0, 1])
-                random_seconds = random.randint(1, 100)
+                correct = secrets.choice([0, 1])
+                random_seconds = secrets.SystemRandom().randint(1, 100)
                 seconds = timezone.timedelta(seconds=random_seconds)
                 AttemptLog.objects.create(
                     item="{}{}{}".format(

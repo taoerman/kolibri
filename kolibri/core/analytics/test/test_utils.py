@@ -4,7 +4,6 @@ import datetime
 import hashlib
 import io
 import os
-import random
 import uuid
 
 from django.test import TestCase
@@ -38,6 +37,7 @@ from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.logger.utils import user_data
+import secrets
 
 
 USER_CSV_PATH = "kolibri/core/logger/management/commands/user_data.csv"
@@ -119,7 +119,7 @@ class BaseDeviceSetupMixin(object):
             )
 
             # Get all the user data at once so that it is distinct across classrooms
-            facility_user_data = random.sample(users, cls.n_classes * cls.n_users)
+            facility_user_data = secrets.SystemRandom().sample(users, cls.n_classes * cls.n_users)
 
             # create random content id for the session logs
             cls.content_id = uuid.uuid4().hex

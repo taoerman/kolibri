@@ -4,7 +4,6 @@ import re
 from base64 import urlsafe_b64decode
 from collections import OrderedDict
 from functools import reduce
-from random import sample
 from uuid import UUID
 
 from django.core.cache import cache
@@ -96,6 +95,7 @@ from kolibri.core.utils.pagination import ValuesViewsetLimitOffsetPagination
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.urls import validator
+import secrets
 
 logger = logging.getLogger(__name__)
 
@@ -1659,7 +1659,7 @@ class UserContentNodeFilter(ContentNodeFilter):
                 count_cache_key = "content_count_for_popular"
                 count = cache.get(count_cache_key) or min(pks.count(), 25)
                 return queryset.filter_by_uuids(
-                    sample(list(pks), count), validate=False
+                    secrets.SystemRandom().sample(list(pks), count), validate=False
                 )
             # get the most accessed content nodes
             # search for content nodes that currently exist in the database

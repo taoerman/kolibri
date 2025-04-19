@@ -2,7 +2,6 @@ import csv
 import io
 import logging
 import os
-import random
 
 from django.core.management.base import BaseCommand
 from django.utils import timezone
@@ -11,6 +10,7 @@ from kolibri.core.auth.test.helpers import create_superuser
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.logger.utils import user_data as utils
+import secrets
 
 
 logger = logging.getLogger(__name__)
@@ -138,7 +138,7 @@ class Command(BaseCommand):
         #     utils.logger_info("Defaulting 'device_name' to '{0}'.".format(device_name))
 
         # Set the random seed so that all operations will be randomized predictably
-        random.seed(n_seed)
+        secrets.SystemRandom().seed(n_seed)
 
         # Generate data up to the current time
         now = timezone.now()
@@ -190,7 +190,7 @@ class Command(BaseCommand):
                 )
 
             # Get all the user data at once so that it is distinct across classrooms
-            facility_user_data = random.sample(user_data, n_classes * n_users)
+            facility_user_data = secrets.SystemRandom().sample(user_data, n_classes * n_users)
 
             for i, classroom in enumerate(classrooms):
                 classroom_user_data = facility_user_data[

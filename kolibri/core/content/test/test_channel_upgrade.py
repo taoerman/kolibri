@@ -1,7 +1,6 @@
 import copy
 import json
 import logging
-import random
 import tempfile
 import uuid
 from itertools import chain
@@ -30,6 +29,7 @@ from kolibri.core.content.utils.sqlalchemybridge import load_metadata
 from kolibri.core.content.utils.upgrade import count_removed_resources
 from kolibri.core.content.utils.upgrade import get_automatically_updated_resources
 from kolibri.core.content.utils.upgrade import get_new_resources_available_for_import
+import secrets
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +47,7 @@ def uuid4_hex():
 
 
 def choices(sequence, k):
-    return [random.choice(sequence) for _ in range(0, k)]
+    return [secrets.choice(sequence) for _ in range(0, k)]
 
 
 class ChannelBuilder(object):
@@ -139,7 +139,7 @@ class ChannelBuilder(object):
         if not parent.get("children"):
             parent["children"] = []
             return parent
-        child = random.choice(parent["children"])
+        child = secrets.choice(parent["children"])
         if child["kind"] != content_kinds.TOPIC:
             return parent
         return self.recurse_tree_until_leaf_container(child)
@@ -240,7 +240,7 @@ class ChannelBuilder(object):
             child = None
             while child is None or child["id"] in self.modified:
                 parent = self.recurse_tree_until_leaf_container(self.root_node)
-                child = random.choice(parent["children"])
+                child = secrets.choice(parent["children"])
             duplicate = self.duplicate_resource(child)
             self.duplicated_resources.append(duplicate)
             parent["children"].append(duplicate)
@@ -254,7 +254,7 @@ class ChannelBuilder(object):
             child = None
             while child is None or child["id"] in self.modified:
                 parent = self.recurse_tree_until_leaf_container(self.root_node)
-                child = random.choice(parent["children"])
+                child = secrets.choice(parent["children"])
             moved = self.duplicate_resource(child)
             self.moved_resources.append(moved)
             self.deleted_resources.append(child)
@@ -282,7 +282,7 @@ class ChannelBuilder(object):
             child = None
             while child is None or child["id"] in self.modified:
                 parent = self.recurse_tree_until_leaf_container(self.root_node)
-                child = random.choice(parent["children"])
+                child = secrets.choice(parent["children"])
             self.updated_resource_localfiles.extend(self.update_resource(child))
             self.updated_resources.append(child)
             self.modified.add(child["id"])
@@ -292,7 +292,7 @@ class ChannelBuilder(object):
             child = None
             while child is None or child["id"] in self.modified:
                 parent = self.recurse_tree_until_leaf_container(self.root_node)
-                child_index = random.randint(0, len(parent["children"]) - 1)
+                child_index = secrets.SystemRandom().randint(0, len(parent["children"]) - 1)
                 child = parent["children"][child_index]
             child = parent["children"].pop(child_index)
             self.delete_resource_files(child)
@@ -380,7 +380,7 @@ class ChannelBuilder(object):
 
     def localfile_data(self, extension="mp4"):
         data = {
-            "file_size": random.randint(1, 1000),
+            "file_size": secrets.SystemRandom().randint(1, 1000),
             "extension": extension,
             "available": False,
             "id": uuid4_hex(),
@@ -405,7 +405,7 @@ class ChannelBuilder(object):
             "local_file_id": local_file_id or uuid4_hex(),
             "contentnode_id": contentnode_id,
             "thumbnail": thumbnail,
-            "preset": preset or random.choice(list(renderable_files_presets)),
+            "preset": preset or secrets.choice(list(renderable_files_presets)),
             "lang_id": None,
         }
         self.files[data["id"]] = data
@@ -421,7 +421,7 @@ class ChannelBuilder(object):
         self, node_id=None, content_id=None, parent_id=None, kind=None, root=False
     ):
         # First kind in choices is Topic, so exclude it here.
-        kind = kind or random.choice(content_kinds.choices[1:])[0]
+        kind = kind or secrets.choice(content_kinds.choices[1:])[0]
         return {
             "options": "{}",
             "content_id": content_id or uuid4_hex(),
@@ -439,14 +439,14 @@ class ChannelBuilder(object):
             "coach_content": False,
             "available": False,
             "learning_activities": ",".join(
-                set(choices(LEARNINGACTIVITIESLIST, k=random.randint(1, 3)))
+                set(choices(LEARNINGACTIVITIESLIST, k=secrets.SystemRandom().randint(1, 3)))
             ),
             "accessibility_labels": ",".join(
-                set(choices(ACCESSIBILITYCATEGORIESLIST, k=random.randint(1, 3)))
+                set(choices(ACCESSIBILITYCATEGORIESLIST, k=secrets.SystemRandom().randint(1, 3)))
             ),
-            "grade_levels": ",".join(set(choices(LEVELSLIST, k=random.randint(1, 2)))),
-            "categories": ",".join(set(choices(SUBJECTSLIST, k=random.randint(1, 10)))),
-            "learner_needs": ",".join(set(choices(NEEDSLIST, k=random.randint(1, 5)))),
+            "grade_levels": ",".join(set(choices(LEVELSLIST, k=secrets.SystemRandom().randint(1, 2)))),
+            "categories": ",".join(set(choices(SUBJECTSLIST, k=secrets.SystemRandom().randint(1, 10)))),
+            "learner_needs": ",".join(set(choices(NEEDSLIST, k=secrets.SystemRandom().randint(1, 5)))),
         }
 
 
