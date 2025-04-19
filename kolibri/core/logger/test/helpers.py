@@ -1,6 +1,5 @@
 import datetime
 import uuid
-from random import randint
 
 from django.utils import timezone
 from le_utils.constants import content_kinds
@@ -17,6 +16,7 @@ from kolibri.core.content.models import ContentNode
 from kolibri.core.logger.api import MIN_INTEGER
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import MasteryLog
+import secrets
 
 
 class EvaluationMixin(object):
@@ -123,7 +123,7 @@ class EvaluationMixin(object):
             user=user,
             summarylog=cls.summary_logs[user_index][(user_index + 1) % 2],
             start_timestamp=try_start,
-            mastery_level=randint(MIN_INTEGER, -1),
+            mastery_level=secrets.SystemRandom().randint(MIN_INTEGER, -1),
         )
 
         start_offset = datetime.timedelta(minutes=5)
@@ -162,7 +162,7 @@ class EvaluationMixin(object):
             end_timestamp=end_timestamp,
             completion_timestamp=end_timestamp,
             complete=True,
-            mastery_level=randint(MIN_INTEGER, -1),
+            mastery_level=secrets.SystemRandom().randint(MIN_INTEGER, -1),
             time_spent=duration * 60,
         )
 

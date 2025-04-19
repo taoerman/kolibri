@@ -1,5 +1,4 @@
 import logging
-import random
 
 from django.core.management.base import BaseCommand
 from le_utils.constants import content_kinds
@@ -14,12 +13,13 @@ from le_utils.constants.labels.subjects import SUBJECTSLIST
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.utils.search import annotate_label_bitmasks
 from kolibri.core.device.models import ContentCacheKey
+import secrets
 
 logger = logging.getLogger(__name__)
 
 
 def choices(sequence, k):
-    return [random.choice(sequence) for _ in range(0, k)]
+    return [secrets.choice(sequence) for _ in range(0, k)]
 
 
 class Command(BaseCommand):
@@ -53,21 +53,21 @@ class Command(BaseCommand):
             kind=content_kinds.TOPIC
         )
         for node in channel_resource_nodes:
-            random.seed(node.id)
+            secrets.SystemRandom().seed(node.id)
             node.learning_activities = ",".join(
-                set(choices(LEARNINGACTIVITIESLIST, k=random.randint(1, 3)))
+                set(choices(LEARNINGACTIVITIESLIST, k=secrets.SystemRandom().randint(1, 3)))
             )
             node.accessibility_labels = ",".join(
-                set(choices(ACCESSIBILITYCATEGORIESLIST, k=random.randint(1, 3)))
+                set(choices(ACCESSIBILITYCATEGORIESLIST, k=secrets.SystemRandom().randint(1, 3)))
             )
             node.grade_levels = ",".join(
-                set(choices(LEVELSLIST, k=random.randint(1, 2)))
+                set(choices(LEVELSLIST, k=secrets.SystemRandom().randint(1, 2)))
             )
             node.categories = ",".join(
-                set(choices(SUBJECTSLIST, k=random.randint(1, 10)))
+                set(choices(SUBJECTSLIST, k=secrets.SystemRandom().randint(1, 10)))
             )
             node.learner_needs = ",".join(
-                set(choices(NEEDSLIST, k=random.randint(1, 5)))
+                set(choices(NEEDSLIST, k=secrets.SystemRandom().randint(1, 5)))
             )
             node.save()
         annotate_label_bitmasks(channel_resource_nodes)

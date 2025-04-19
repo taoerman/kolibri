@@ -1,5 +1,4 @@
 import os
-import random
 import tempfile
 
 import pytest
@@ -20,6 +19,7 @@ from kolibri.core.deviceadmin.utils import IncompatibleDatabase
 from kolibri.core.deviceadmin.utils import search_latest
 from kolibri.utils.server import NotRunning
 from kolibri.utils.server import STATUS_UNKNOWN
+import secrets
 
 MOCK_DATABASES = {
     "default": {
@@ -33,7 +33,7 @@ MOCK_DATABASES_FILE = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": os.path.join(
-            tempfile.mkdtemp(), "test{}.db".format(random.randint(0, 100000))
+            tempfile.mkdtemp(), "test{}.db".format(secrets.SystemRandom().randint(0, 100000))
         ),
         "OPTIONS": {"timeout": 100},
     }

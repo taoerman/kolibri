@@ -1,7 +1,5 @@
 import datetime
 import uuid
-from random import choice
-from random import uniform
 
 from django.core.exceptions import MultipleObjectsReturned
 from django.test import TestCase
@@ -17,6 +15,7 @@ from kolibri.core.logger.utils.attempt_log_consolidation import (
     consolidate_quiz_attempt_logs,
 )
 from kolibri.utils.time_utils import local_now
+import secrets
 
 
 class ConsolidateBase(TestCase):
@@ -63,8 +62,8 @@ class ConsolidateBase(TestCase):
                 item="item_{i}".format(i=i),
                 start_timestamp=local_now(),
                 end_timestamp=local_now(),
-                time_spent=uniform(1.0, 10.0),
-                correct=choice([0, 1]),
+                time_spent=secrets.SystemRandom().uniform(1.0, 10.0),
+                correct=secrets.choice([0, 1]),
                 user=self.user,
                 masterylog=self.mastery_log,
                 sessionlog=self.session_log,
@@ -78,8 +77,8 @@ class ConsolidateBase(TestCase):
                 item=self.duplicated_item,
                 start_timestamp=local_now() - five_minutes * (i + 2),
                 end_timestamp=local_now() - five_minutes * (-1) ** i * (i + 1),
-                time_spent=uniform(1.0, 10.0),
-                correct=choice([0, 1]),
+                time_spent=secrets.SystemRandom().uniform(1.0, 10.0),
+                correct=secrets.choice([0, 1]),
                 user=self.user,
                 masterylog=self.mastery_log,
                 sessionlog=self.session_log,

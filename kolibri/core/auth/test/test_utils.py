@@ -26,6 +26,7 @@ from kolibri.core.auth.utils.delete import get_delete_group_for_facility
 from kolibri.core.auth.utils.migrate import fork_facility
 from kolibri.core.auth.utils.migrate import merge_users
 from kolibri.core.logger import models as log_models
+import secrets
 
 
 class GetFacilityTestCase(TestCase):
@@ -104,7 +105,7 @@ class MasteryLogFactory(factory.DjangoModelFactory):
     user = factory.SubFactory(FacilityUserFactory)
     summarylog = factory.SubFactory(ContentSummaryLogFactory)
     start_timestamp = datetime.datetime.now()
-    mastery_level = factory.LazyFunction(lambda: random.randint(1, 10))
+    mastery_level = factory.LazyFunction(lambda: secrets.SystemRandom().randint(1, 10))
 
 
 class AttemptLogFactory(factory.DjangoModelFactory):
